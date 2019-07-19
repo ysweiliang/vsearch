@@ -20,3 +20,4 @@
 * 2.VueJs
 * 3.ElementUI
 * 4.MySQL
+* 5.Elasticsearch7.2
