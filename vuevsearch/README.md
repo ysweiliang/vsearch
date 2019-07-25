@@ -24,6 +24,11 @@ npm run test
 ```
 npm run lint
 ```
+### element-ui
+```
+cnpm i element-ui -S
+```
+
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).

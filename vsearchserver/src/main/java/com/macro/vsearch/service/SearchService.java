@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,21 +43,22 @@ public class SearchService {
 
     /**
      * 查询接口
-     * @param keyWordJson:{"keyWord":"beautiful","pageNum":0,"pageSize":5}
+     *
+     * @param keywordJson:{"keyword":"beautiful","pageNum":0,"pageSize":5}
      * @return 返回查询结果及分页
      */
-    public JSONObject searchByKeyWord(JSONObject keyWordJson) {
+    public JSONObject searchByKeyWord(JSONObject keywordJson) {
         JSONObject searchJson = new JSONObject();
         List list = new ArrayList();
-        String keyWord = keyWordJson.getString("keyWord");
-        Integer pageNum = keyWordJson.getInteger("pageNum");
-        Integer pageSize = keyWordJson.getInteger("pageSize");
+        String keyword = keywordJson.getString("keyword");
+        Integer pageNum = keywordJson.getInteger("pageNum");
+        Integer pageSize = keywordJson.getInteger("pageSize");
         //Search请求
         SearchRequest searchRequest = new SearchRequest();
 
         //查询过滤条件，fuzziness：模糊查询，maxExpansions：模糊度
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        QueryBuilder matchQueryBuilder = QueryBuilders.matchQuery("title", keyWord)
+        QueryBuilder matchQueryBuilder = QueryBuilders.multiMatchQuery(keyword, "title", "content")
                 .fuzziness(Fuzziness.AUTO)
                 .prefixLength(3)
                 .maxExpansions(10);
