@@ -2,6 +2,7 @@ package com.macro.vsearch.service;
 
 import com.alibaba.fastjson.JSONObject;
 import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -18,15 +19,19 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.ScoreSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.elasticsearch.search.suggest.Suggest;
+import org.elasticsearch.search.suggest.SuggestBuilder;
+import org.elasticsearch.search.suggest.SuggestBuilders;
+import org.elasticsearch.search.suggest.SuggestionBuilder;
+import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
+import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -114,4 +119,58 @@ public class SearchService {
         return searchJson;
     }
 
+    /**
+     * 智能下拉框
+     */
+
+    public List<String> getSuggestCompletion(JSONObject suggestJson) {
+
+        String suggestField = "title";//指定在哪个字段搜索
+        String suggestValue = suggestJson.getString("suggest");//输入的信息
+        Integer suggestMaxCount = 10;//获得最大suggest条数
+        //Search请求
+        SearchRequest searchRequest = new SearchRequest();
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        //做查询建议
+        SuggestionBuilder termSuggestionBuilder =
+                SuggestBuilders.completionSuggestion(suggestField).text(suggestValue);
+        SuggestBuilder suggestBuilder = new SuggestBuilder();
+        suggestBuilder.addSuggestion("article_suggest", termSuggestionBuilder);
+        sourceBuilder.suggest(suggestBuilder);
+        searchRequest.indices("article");
+        searchRequest.source(sourceBuilder);
+        Set<String> suggestSet = new HashSet<>();//set
+        try {
+            SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+            Suggest suggest = searchResponse.getSuggest();
+            int maxSuggest = 0;
+            Suggest.Suggestion result = suggest.getSuggestion("article_suggest");//获取suggest,name任意string
+            for (Object term : result.getEntries()) {
+                if (term instanceof CompletionSuggestion.Entry) {
+                    CompletionSuggestion.Entry item = (CompletionSuggestion.Entry) term;
+                    if (!item.getOptions().isEmpty()) {
+                        //若item的option不为空,循环遍历
+                        for (CompletionSuggestion.Entry.Option option : item.getOptions()) {
+                            String tip = option.getText().toString();
+                            if (!suggestSet.contains(tip)) {
+                                suggestSet.add(tip);
+                                ++maxSuggest;
+                            }
+                        }
+                    }
+                }
+                if (maxSuggest >= suggestMaxCount) {
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        List<String> suggests = Arrays.asList(suggestSet.toArray(new String[]{}));
+        suggests.forEach((s) -> {
+            System.out.println(s);
+        });
+        return suggests;
+    }
 }

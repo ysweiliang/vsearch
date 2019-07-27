@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.fastjson.JSONObject;
 
+import java.util.List;
+
 /**
  * 搜索实现
  *
@@ -22,5 +24,10 @@ public class SearchController {
     @PostMapping(value = "/search")
     public JSONObject search(@RequestBody JSONObject keyWordJson) {
         return searchService.searchByKeyWord(keyWordJson);
+    }
+
+    @PostMapping(value = "/search/suggest")
+    public List<String> getSuggest(@RequestBody JSONObject suggestJson) {
+        return searchService.getSuggestCompletion(suggestJson);
     }
 }

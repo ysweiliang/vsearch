@@ -6,13 +6,20 @@
             </div>
         </el-col>
         <el-col :span="10" style="margin-left: 14%;">
-            <el-input v-model="keyword" placeholder="请输入内容" @keyup.enter.native="search"></el-input>
+            <el-autocomplete style="width: 100%"
+                             v-model="keyword"
+                             :fetch-suggestions="querySearchAsync"
+                             placeholder="请输入内容"
+                             @select="handleSelect"
+                             @keyup.enter.native="search"
+                             clearable
+            ></el-autocomplete>
         </el-col>
         <el-col :span="1">
             <el-button type="primary" icon="el-icon-search" @click="search">搜索</el-button>
         </el-col>
         <el-col :span="10" style="margin-left: 14%;">
-            <p>搜索结果：{{total}}</p>
+            <p style="font-size: 12px;color: #999;">搜索结果：{{total}}</p>
         </el-col>
         <el-col :span="10" style="margin-left: 14%;">
             <div v-for="(searchDetailData) in searchList" :key="searchDetailData.id">
@@ -21,7 +28,8 @@
             </div>
         </el-col>
         <el-col :span="4" style="margin-top: 5%;">
-            <div>搜索热点<span style="margin-left: 35%;">换一换</span></div>
+            <div style="font-size:14px;line-height:1.29;font-weight:700;">搜索热点<span
+                    style="margin-left: 35%;">换一换</span></div>
             <div>
                 <p style="cursor: pointer;">11111</p>
                 <p style="cursor: pointer;">11111</p>
@@ -32,7 +40,7 @@
         </el-col>
 
         <el-col :span="10" style="margin-left: 14%;">
-            <div>相关搜索</div>
+            <div style="font-size:14px;line-height:1.29;font-weight:700;">相关搜索</div>
             <div>
                 <span style="cursor: pointer;">111112</span>
                 <span style="margin-left: 15%;cursor: pointer;">222222</span>
@@ -67,7 +75,9 @@
                 pageNum: 1,
                 pageSize: 5,
                 total: null,
-                searchList: []
+                searchList: [],
+                suggests: [],
+                timeout: null
             }
         },
         methods: {
@@ -96,6 +106,31 @@
                     path: '/search/detail',
                     query: {searchDetailData: JSON.stringify(searchDetailData)}
                 })
+            },
+            querySearchAsync(queryString, cb) {
+                let param = {
+                    'suggest': this.keyword
+                };
+                this.postRequest('/search/suggest', param).then(res => {
+                    var results = [];
+                    this.suggests = res.data;
+                    for (let index in this.suggests) {
+                        let obj = {"value": this.suggests[index]};
+                        results.push(obj)
+                    }
+                    clearTimeout(this.timeout);
+                    this.timeout = setTimeout(() => {
+                        cb(results);
+                    }, 1000 * Math.random());
+                });
+            },
+            createStateFilter(queryString) {
+                return (state) => {
+                    return (state.value.indexOf(queryString) === 0);
+                };
+            },
+            handleSelect(item) {
+                console.log(item);
             }
         },
         created: function () {
