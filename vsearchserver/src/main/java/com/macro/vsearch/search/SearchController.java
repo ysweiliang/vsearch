@@ -1,6 +1,5 @@
-package com.macro.vsearch.controller;
+package com.macro.vsearch.search;
 
-import com.macro.vsearch.service.SearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
