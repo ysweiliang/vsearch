@@ -29,7 +29,7 @@ public class LoginController {
      * @param bindingResult 用户信息校验结果
      * @return
      */
-    @PostMapping(value = "/login")
+    @PostMapping(value = "/user/login")
     public JSONObject login(@RequestBody @Validated User user, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return SpringValidateUtil.validateResult(bindingResult);

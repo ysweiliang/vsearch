@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.macro.vsearch.user.User;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -24,6 +25,9 @@ public class LoginService {
      * @return
      */
     public JSONObject login(User user) {
+        //密码md5加密
+        String md5Password = DigestUtils.md5DigestAsHex(user.getPassword().getBytes());
+        user.setPassword(md5Password);
         List<User> list = loginMapper.validateUser(user);
         if (list.isEmpty()) {
             JSONObject resultObj = new JSONObject();
