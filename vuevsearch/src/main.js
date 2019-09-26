@@ -4,6 +4,7 @@ import App from './App.vue'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import routes from './routes'
+import store from './store'
 import {getRequest} from './utils/api'
 import {postRequest} from './utils/api'
 import {deleteRequest} from './utils/api'
@@ -25,5 +26,6 @@ const router = new VueRouter({
 
 new Vue({
     router,
+    store,
     render: h => h(App),
 }).$mount('#app');

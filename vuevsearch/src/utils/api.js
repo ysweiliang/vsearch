@@ -7,13 +7,13 @@ import {Message} from 'element-ui'
 //   // return Promise.resolve(err);
 // })
 axios.interceptors.response.use(data => {
-  if (data.status && data.status == 200 && data.data.status == 500) {
-    Message.error({message: data.data.msg});
-    return;
-  }
-  if (data.data.msg) {
-    Message.success({message: data.data.msg});
-  }
+  // if (data.status && data.status == 200 && data.data.status == 500) {
+  //   Message.error({message: data.data.msg});
+  //   return;
+  // }
+  // if (data.data.msg) {
+  //   Message.success({message: data.data.msg});
+  // }
   return data;
 }, err => {
   if (err.response.status == 504 || err.response.status == 404) {

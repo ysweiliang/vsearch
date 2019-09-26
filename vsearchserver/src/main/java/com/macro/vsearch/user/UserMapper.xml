@@ -7,7 +7,13 @@
             name,
         </if>
         <if test=" password !=null and password !='' ">
-            password
+            password,
+        </if>
+        <if test=" phone !=null and phone !='' ">
+            phone,
+        </if>
+        <if test=" email !=null and email !='' ">
+            email
         </if>
         )
         VALUES (
@@ -15,7 +21,13 @@
             #{name},
         </if>
         <if test=" password !=null and password !='' ">
-            #{password}
+            #{password},
+        </if>
+        <if test=" phone !=null and phone !='' ">
+            #{phone},
+        </if>
+        <if test=" email !=null and email !='' ">
+            #{email}
         </if>
         )
     </insert>

@@ -1,6 +1,8 @@
 package com.macro.vsearch.search;
 
 import com.alibaba.fastjson.JSONObject;
+import com.macro.vsearch.util.DateUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -8,6 +10,7 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -36,10 +39,9 @@ import java.util.concurrent.TimeUnit;
  * @author yuans
  * @create 2019-07-18-23:07
  */
+@Slf4j
 @Service
 public class SearchService {
-
-    private static final Logger logger = LoggerFactory.getLogger(SearchService.class);
 
     @Autowired
     private RestHighLevelClient client;
@@ -52,7 +54,7 @@ public class SearchService {
      */
     public JSONObject searchByKeyWord(JSONObject keywordJson) {
         JSONObject searchJson = new JSONObject();
-        List list = new ArrayList();
+        List<JSONObject> list = new ArrayList<>();
         String keyword = keywordJson.getString("keyword");
         Integer pageNum = keywordJson.getInteger("pageNum");
         Integer pageSize = keywordJson.getInteger("pageSize");
@@ -112,7 +114,7 @@ public class SearchService {
             searchJson.put("total", totalHits);
             searchJson.put("rows", list);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.info("msg:{},time:{}", e.getMessage(), DateUtils.getNowTime());
         }
         return searchJson;
     }
@@ -120,12 +122,37 @@ public class SearchService {
     /**
      * 智能下拉框
      */
+    public List<String> getSuggestDropDown(JSONObject suggestJson) {
+        List<String> resultList = new ArrayList<>();
+        String suggestValue = suggestJson.getString("suggest");
+        SearchRequest searchRequest = new SearchRequest();
+        QueryBuilder matchQueryBuilder = QueryBuilders.multiMatchQuery(suggestValue, "title")
+                .fuzziness(Fuzziness.AUTO)
+                .prefixLength(3)
+                .maxExpansions(10);
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(matchQueryBuilder);
+        searchRequest.indices("article");
+        searchRequest.source(searchSourceBuilder);
+        try {
+            SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+            SearchHits searchHits = searchResponse.getHits();
+            for (SearchHit hit : searchHits) {
+                String sourceAsString = hit.getSourceAsString();
+                JSONObject jsonObject = JSONObject.parseObject(sourceAsString);
+                resultList.add(jsonObject.getString("title"));
+            }
+        } catch (IOException e) {
+            log.info("msg:{}", e.getMessage());
+        }
+        return resultList;
+    }
 
     public List<String> getSuggestCompletion(JSONObject suggestJson) {
 
         String suggestField = "title";//指定在哪个字段搜索
         String suggestValue = suggestJson.getString("suggest");//输入的信息
-        Integer suggestMaxCount = 10;//获得最大suggest条数
+        int suggestMaxCount = 10;//获得最大suggest条数
         //Search请求
         SearchRequest searchRequest = new SearchRequest();
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
@@ -167,7 +194,7 @@ public class SearchService {
 
         List<String> suggests = Arrays.asList(suggestSet.toArray(new String[]{}));
         suggests.forEach((s) -> {
-            System.out.println(s);
+            log.info("suggest:{}", s);
         });
         return suggests;
     }

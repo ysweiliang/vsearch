@@ -111,7 +111,7 @@
                 let param = {
                     'suggest': this.keyword
                 };
-                this.postRequest('/search/suggest', param).then(res => {
+                this.postRequest('/search/dropDown', param).then(res => {
                     var results = [];
                     this.suggests = res.data;
                     for (let index in this.suggests) {

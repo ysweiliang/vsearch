@@ -3,6 +3,7 @@ package com.macro.vsearch.user;
 
 import com.alibaba.fastjson.JSONObject;
 import com.macro.vsearch.util.SpringValidateUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -18,6 +19,7 @@ import java.util.List;
  * @author yuans
  * @create 2019-07-18-21:37
  */
+@Slf4j
 @RestController
 public class UserController {
 
@@ -38,6 +40,7 @@ public class UserController {
      */
     @PostMapping(value = "/user/register")
     public JSONObject userRegister(@RequestBody @Validated User user, BindingResult bindingResult) {
+        log.info("user:{}", user);
         if (bindingResult.hasErrors()) {
             return SpringValidateUtil.validateResult(bindingResult);
         }

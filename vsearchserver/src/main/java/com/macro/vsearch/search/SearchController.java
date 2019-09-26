@@ -25,6 +25,21 @@ public class SearchController {
         return searchService.searchByKeyWord(keyWordJson);
     }
 
+    /**
+     * 搜索下拉框
+     * @param suggestJson
+     * @return
+     */
+    @PostMapping(value = "/search/dropDown")
+    public List<String> dropDown(@RequestBody JSONObject suggestJson) {
+        return searchService.getSuggestDropDown(suggestJson);
+    }
+
+    /**
+     * 聚合查询示例
+     * @param suggestJson
+     * @return
+     */
     @PostMapping(value = "/search/suggest")
     public List<String> getSuggest(@RequestBody JSONObject suggestJson) {
         return searchService.getSuggestCompletion(suggestJson);

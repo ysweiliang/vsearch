@@ -29,13 +29,18 @@ public class LoginService {
         String md5Password = DigestUtils.md5DigestAsHex(user.getPassword().getBytes());
         user.setPassword(md5Password);
         List<User> list = loginMapper.validateUser(user);
+        JSONObject resultObj = new JSONObject();
         if (list.isEmpty()) {
-            JSONObject resultObj = new JSONObject();
             resultObj.put("msg", "用户不存在");
             resultObj.put("resultcode", 0);
             return resultObj;
         } else {
-            return (JSONObject) JSON.toJSON(list.get(0));
+            User userInfo = list.get(0);
+            resultObj.put("name",userInfo.getName());
+            resultObj.put("id",userInfo.getId());
+            resultObj.put("phone",userInfo.getPhone());
+            resultObj.put("email",userInfo.getEmail());
+            return resultObj;
         }
     }
 }
