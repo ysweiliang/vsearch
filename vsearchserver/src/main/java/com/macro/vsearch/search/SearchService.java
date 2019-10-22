@@ -65,7 +65,6 @@ public class SearchService {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         QueryBuilder matchQueryBuilder = QueryBuilders.multiMatchQuery(keyword, "title", "content")
                 .fuzziness(Fuzziness.AUTO)
-                .prefixLength(3)
                 .maxExpansions(10);
         searchSourceBuilder.query(matchQueryBuilder);
         //设置搜索分页
@@ -132,7 +131,7 @@ public class SearchService {
                 .maxExpansions(10);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(matchQueryBuilder);
-        searchRequest.indices("article");
+        searchRequest.indices("movies");
         searchRequest.source(searchSourceBuilder);
         try {
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);

@@ -8,7 +8,7 @@ export default new Vuex.Store({
     state: {
         userInfo: {
             name: window.localStorage.getItem('userInfo' || '[]') == null ? '未登录' : JSON.parse(window.localStorage.getItem('userInfo' || '[]')).name,
-            userface: window.localStorage.getItem('userInfo' || '[]') == null ? '' : JSON.parse(window.localStorage.getItem('userInfo' || '[]')).id
+            userId: window.localStorage.getItem('userInfo' || '[]') == null ? '' : JSON.parse(window.localStorage.getItem('userInfo' || '[]')).id
         }
     },
     mutations: {

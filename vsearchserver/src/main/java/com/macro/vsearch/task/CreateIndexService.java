@@ -1,6 +1,10 @@
 package com.macro.vsearch.task;
 
 
+import com.alibaba.fastjson.JSONObject;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
@@ -8,6 +12,9 @@ import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +38,7 @@ public class CreateIndexService {
         //2、设置索引的settings
         Settings settings = Settings.builder()
                 .put("index.number_of_shards", 3)//分片数
-                .put("index.number_of_replicas", 0)//副本数
+                .put("index.number_of_replicas", 1)//副本数
 //                .put("analysis.analyzer.default.tokenizer", "ik_smart")//默认分词器
                 .build();
         request.settings(settings);
@@ -42,8 +49,9 @@ public class CreateIndexService {
                 .startObject("ARTICLE_ID").field("type", "text").endObject()
                 .startObject("CONTENT").field("type", "text").endObject()
                 .startObject("TITLE").field("type", "text").endObject()
-                .startObject("CATALOG").field("type", "text").endObject()
-                .startObject("LEVEL").field("type", "text").endObject()
+                .startObject("AUTHOR").field("type", "text").endObject()
+                .startObject("COLLECT").field("type", "integer").endObject()
+                .startObject("PAGE_VIEW").field("type", "integer").endObject()
                 .endObject()
                 .endObject();
         request.mapping(mapping);
